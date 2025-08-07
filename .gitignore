@@ -21,6 +21,11 @@
 *.doc
 *.docx
 
+# Text files
+*.csv
+*.tsv
+*.tab
+
 # Executable
 *.exe
 

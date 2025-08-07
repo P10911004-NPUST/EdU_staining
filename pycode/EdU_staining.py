@@ -10,7 +10,7 @@ import czifile
 from z_projection import Z_projection
 
 
-img_dir = "C:/jklai/project/rice_heat-stress/experiments/EdU/salt_stress/WT_0-100mM-salt_0-10nM-RGF1_20250724"
+img_dir = "C:/jklai/project/rice_heat-stress/experiments/EdU/OsRGF1_gradient/osrgf1-7_0-1-10-100-1000pM_20250805"
 img_list = [i for i in os.listdir(img_dir) if i.endswith((".czi"))]
 
 #df0 = pd.DataFrame(columns = ["img_name", "area", "total_intensity"])
