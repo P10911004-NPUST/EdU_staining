@@ -10,7 +10,7 @@ import czifile
 from z_projection import Z_projection
 
 
-img_dir = "C:/jklai/project/rice_heat-stress/experiments/EdU/OsRGF1_gradient/osrgf1-7_0-1-10-100-1000pM_20250805"
+img_dir = "C:/jklai/project/rice_heat-stress/experiments/EdU/OsRGF1_gradient/osrgf1-8_0-1-10-100-1000pM_20250812"
 img_list = [i for i in os.listdir(img_dir) if i.endswith((".czi"))]
 
 #df0 = pd.DataFrame(columns = ["img_name", "area", "total_intensity"])
@@ -23,7 +23,9 @@ data = {
     "resolution (um/pixel)": [],
     "area": [], 
     "total_intensity": [], 
-    "avg_intensity": []
+    "avg_intensity": [],
+    "distance_from_root_tip_pixels": [],
+    "note": []
 }
 
 for i in img_list:
@@ -56,6 +58,8 @@ for i in img_list:
     data["area"].append(staining_area)
     data["total_intensity"].append(total_intensity)
     data["avg_intensity"].append(avg_intensity)
+    data["distance_from_root_tip_pixels"].append("")
+    data["note"].append("")
     
     #df0 = pd.concat([ 
     #    df0, 
@@ -76,5 +80,5 @@ for i in img_list:
     RGB_img.save(os.path.join(img_dir, f"{i.removesuffix('.czi')}.tiff"), "TIFF")
 
 df0 = pd.DataFrame.from_dict(data)
-df0.to_csv(os.path.join(img_dir, "total_intensity.csv"), index=False)
+df0.to_csv(os.path.join(img_dir, f"OUT-EdU_{os.path.basename(img_dir)}.csv"), index=False)
 
