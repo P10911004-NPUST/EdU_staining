@@ -7,13 +7,13 @@ import numpy as np
 import pandas as pd
 import czifile
 
-from z_projection import Z_projection
-
-
-img_dir = "C:/jklai/project/rice_heat-stress/experiments/EdU/OsRGF1_gradient/osrgf1-8_0-1-10-100-1000pM_20250812"
+img_dir = "C:/jklai/project/rice_heat-stress/experiments/EdU/WT-vs-mutants_Mock_20260128/CZI"
 img_list = [i for i in os.listdir(img_dir) if i.endswith((".czi"))]
 
-#df0 = pd.DataFrame(columns = ["img_name", "area", "total_intensity"])
+output_folder = os.path.join(os.path.dirname(img_dir), "OUT_" + os.path.basename(img_dir))
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
+
 data = {
     "img_name": [], 
     "ntrack": [],
@@ -29,7 +29,6 @@ data = {
 }
 
 for i in img_list:
-    #img = czifile.imread(os.path.join(img_dir, i))
     czi = czifile.CziFile(os.path.join(img_dir, i))
     Metadata = czi.metadata(raw=False)["ImageDocument"]["Metadata"]
     ImageScaling = Metadata["ImageScaling"]
@@ -42,8 +41,13 @@ for i in img_list:
     _, _, track, zstack, width, height, _ = czi_arr.shape
     
     img = czi_arr[0, 0, 0, :, :, :, 0]
-    img = Z_projection(img, methods="max_intensity")
-    img[img < 100] = 0
+    img = np.max(img, axis=0)
+    
+    if img.dtype != "uint8":
+        img = (img - img.min()) / (img.max() - img.min()) * 255.0
+        img = img.astype(np.uint8)
+    
+    img[img < 10] = 0
 
     total_intensity = img.sum()
     staining_area = np.sum(img > 0)
@@ -60,25 +64,12 @@ for i in img_list:
     data["avg_intensity"].append(avg_intensity)
     data["distance_from_root_tip_pixels"].append("")
     data["note"].append("")
-    
-    #df0 = pd.concat([ 
-    #    df0, 
-    #    pd.DataFrame({
-    #        "img_name": [i], 
-    #        "img_size_pixels": [f'{height} x {width}'],
-    #        "img_size_um": [f'{height * microns_per_pixel} x {width * microns_per_pixel}'],
-    #        "resolution (um/pixel)": [microns_per_pixel],
-    #        "area": [staining_area], 
-    #        "total_intensity": [total_intensity], 
-    #        "avg_intensity": [avg_intensity]
-    #    })
-    #])
 
     RGB_img = np.zeros((width, height, 3), dtype = np.uint8)
     RGB_img[:, :, 1] = img  # insert to green channel
     RGB_img = Image.fromarray(RGB_img, mode="RGB")
-    RGB_img.save(os.path.join(img_dir, f"{i.removesuffix('.czi')}.tiff"), "TIFF")
+    RGB_img.save(os.path.join(output_folder, f"{i.removesuffix('.czi')}.tiff"), "TIFF")
 
 df0 = pd.DataFrame.from_dict(data)
-df0.to_csv(os.path.join(img_dir, f"OUT-EdU_{os.path.basename(img_dir)}.csv"), index=False)
+df0.to_csv(os.path.join(output_folder, f"OUT_EdU.csv"), index=False)
 
